@@ -1,6 +1,11 @@
 name: 'Setup Java & Maven'
 description: 'Reusable setup for Java and Maven'
 
+inputs:
+  maven-settings-base64:
+    description: "Base64 encoded Maven settings.xml"
+    required: true
+
 runs:
   using: 'composite'
   steps:
