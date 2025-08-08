@@ -23,7 +23,7 @@ jobs:
     - name: Setup Java & Maven
       uses: ./.github/actions/setup-java-maven
       with:
-          maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
 
     - name: Cache Maven packages
       uses: actions/cache@v4
