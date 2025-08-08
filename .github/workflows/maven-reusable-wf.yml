@@ -16,6 +16,9 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        repository: anil-cicd-org/maven-deploy-workflows-master
+        ref: main
 
     - name: Setup Java & Maven
       uses: ./.github/actions/setup-java-maven
