@@ -1,0 +1,22 @@
+name: 'Setup Java & Maven'
+description: 'Reusable setup for Java and Maven'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up OpenJDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: '3.9.6'
+
+    - name: Inject Maven settings.xml
+      run: |
+        mkdir -p ~/.m2
+        echo "${{ secrets.MAVEN_SETTINGS_BASE64 }}" | base64 --decode > ~/.m2/settings.xml
+      shell: bash
