@@ -10,8 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout reusable workflow repo
         uses: actions/checkout@v4
+        with:
+          repository: anil-cicd-org/maven-deploy-workflows-master
+          ref: main
 
       - name: Setup Java & Maven
         uses: ./.github/actions/setup-java-maven
