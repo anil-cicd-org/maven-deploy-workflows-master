@@ -16,11 +16,18 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+    
+    - name: Checkout reusable workflow repo
+      uses: actions/checkout@v4
+      with:
+        repository: anil-cicd-org/maven-deploy-workflows-master
+        ref: main
+        path: reusable-repo
 
     - name: Setup Java & Maven
       uses: ./reusable-repo/.github/actions/setup-java-maven
       with:
-          maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
 
     - name: Cache Maven packages
       uses: actions/cache@v4
