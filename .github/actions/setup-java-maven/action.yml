@@ -23,4 +23,5 @@ runs:
     - name: Inject Maven settings.xml
       run: |
         mkdir -p ~/.m2
-        echo "${{ inputs.maven-settings-base64 }}" | base64 --decode > ~/.m2/settings.xml    
+        echo "${{ inputs.maven-settings-base64 }}" | base64 --decode > ~/.m2/settings.xml  
+      shell: bash  
