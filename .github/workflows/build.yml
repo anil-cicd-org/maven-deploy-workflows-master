@@ -10,7 +10,7 @@ jobs:
   # ---------------------------
   # Build Job
   # ---------------------------
-  build:
+  app-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -50,8 +50,8 @@ jobs:
 # ---------------------------
   # Deployment Job
   # ---------------------------
-  deploy: 
-    needs: build   
+  deploy-dev: 
+    needs: app-build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
@@ -77,4 +77,36 @@ jobs:
     - name: Deploy to CloudHub 2.0
       run: |
         mvn deploy -DskipMunitTests -DmuleDeploy -Pdev
+
+  deploy-test: 
+    needs:
+      - app-build
+      - deploy-dev      
+    runs-on: ubuntu-latest
+    environment: 
+      name: test
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Checkout reusable workflow repo
+      uses: actions/checkout@v4
+      with:
+        repository: anil-cicd-org/maven-deploy-workflows-master
+        ref: main
+        path: reusable-repo
+
+    - name: Setup Java & Maven
+      uses: ./reusable-repo/.github/actions/setup-java-maven
+      with:
+        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: mule-application
+
+    - name: Deploy to CloudHub 2.0
+      run: |
+        mvn deploy -DskipMunitTests -DmuleDeploy -Ptest
 
