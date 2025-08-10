@@ -9,7 +9,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set up OpenJDK
+    - name: Set up OpenJDK 11
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -23,5 +23,4 @@ runs:
     - name: Inject Maven settings.xml
       run: |
         mkdir -p ~/.m2
-        echo "${{ inputs.maven-settings-base64 }}" | base64 --decode > ~/.m2/settings.xml
-      shell: bash
+        echo "${{ secrets.MAVEN_SETTINGS_BASE64 }}" | base64 --decode > ~/.m2/settings.xml    
