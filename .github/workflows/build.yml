@@ -34,8 +34,14 @@ jobs:
         path: reusable-repo
 
     - name: Show received secrets
-      run: |         
-        echo "API Key from  ${{ inputs.environment }}: ${{ secrets.SECRET_VALUE }}"
+      env:
+        SECRET_VALUE: ${{ secrets.SECRET_VALUE }}
+      run: |
+        if [ -z "$SECRET_VALUE" ]; then
+        echo "SECRET_VALUE is empty"
+        else
+        echo "SECRET_VALUE length: ${#SECRET_VALUE}"
+        fi
         
 
 #     - name: Setup Java & Maven
