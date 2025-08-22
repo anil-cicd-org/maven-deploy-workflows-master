@@ -5,6 +5,14 @@ on:
     secrets:
       MAVEN_SETTINGS_BASE64:
         required: true
+    inputs:
+      environment:
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
     
 jobs:
   # ---------------------------
@@ -12,6 +20,7 @@ jobs:
   # ---------------------------
   app-build:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     steps:
     - name: Checkout Code
@@ -24,89 +33,94 @@ jobs:
         ref: main
         path: reusable-repo
 
-    - name: Setup Java & Maven
-      uses: ./reusable-repo/.github/actions/setup-java-maven
-      with:
-        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+    - name: Show received secrets
+      run: |         
+        echo "API Key from  ${{ inputs.environment }}: ${{ secrets.SECRET_VALUE }}"
+        
 
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+#     - name: Setup Java & Maven
+#       uses: ./reusable-repo/.github/actions/setup-java-maven
+#       with:
+#         maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
 
-    - name: Build with Maven
-      run: mvn clean deploy -DskipMunitTests -Pdev
+#     - name: Cache Maven packages
+#       uses: actions/cache@v4
+#       with:
+#         path: |
+#           ~/.m2/repository
+#         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#         restore-keys: |
+#           ${{ runner.os }}-maven-
 
-    - name: Upload Artifact for Deployment
-      uses: actions/upload-artifact@v4
-      with:
-        name: mule-application
-        path: target/*.jar
+#     - name: Build with Maven
+#       run: mvn clean deploy -DskipMunitTests -Pdev
 
-# ---------------------------
-  # Deployment Job
-  # ---------------------------
-  deploy-dev: 
-    needs: app-build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+#     - name: Upload Artifact for Deployment
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: mule-application
+#         path: target/*.jar
 
-    - name: Checkout reusable workflow repo
-      uses: actions/checkout@v4
-      with:
-        repository: anil-cicd-org/maven-deploy-workflows-master
-        ref: main
-        path: reusable-repo
+# # ---------------------------
+#   # Deployment Job
+#   # ---------------------------
+#   deploy-dev: 
+#     needs: app-build
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout Code
+#       uses: actions/checkout@v4
 
-    - name: Setup Java & Maven
-      uses: ./reusable-repo/.github/actions/setup-java-maven
-      with:
-        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+#     - name: Checkout reusable workflow repo
+#       uses: actions/checkout@v4
+#       with:
+#         repository: anil-cicd-org/maven-deploy-workflows-master
+#         ref: main
+#         path: reusable-repo
 
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: mule-application
+#     - name: Setup Java & Maven
+#       uses: ./reusable-repo/.github/actions/setup-java-maven
+#       with:
+#         maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
 
-    - name: Deploy to CloudHub 2.0
-      run: |
-        mvn deploy -DskipMunitTests -DmuleDeploy -Pdev
+#     - name: Download Artifact
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: mule-application
 
-  deploy-test: 
-    needs:
-      - app-build
-      - deploy-dev      
-    runs-on: ubuntu-latest
-    environment: 
-      name: test
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+#     - name: Deploy to CloudHub 2.0
+#       run: |
+#         mvn deploy -DskipMunitTests -DmuleDeploy -Pdev
 
-    - name: Checkout reusable workflow repo
-      uses: actions/checkout@v4
-      with:
-        repository: anil-cicd-org/maven-deploy-workflows-master
-        ref: main
-        path: reusable-repo
+#   deploy-test: 
+#     needs:
+#       - app-build
+#       - deploy-dev      
+#     runs-on: ubuntu-latest
+#     environment: 
+#       name: test
+#     steps:
+#     - name: Checkout Code
+#       uses: actions/checkout@v4
 
-    - name: Setup Java & Maven
-      uses: ./reusable-repo/.github/actions/setup-java-maven
-      with:
-        maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
+#     - name: Checkout reusable workflow repo
+#       uses: actions/checkout@v4
+#       with:
+#         repository: anil-cicd-org/maven-deploy-workflows-master
+#         ref: main
+#         path: reusable-repo
 
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: mule-application
+#     - name: Setup Java & Maven
+#       uses: ./reusable-repo/.github/actions/setup-java-maven
+#       with:
+#         maven-settings-base64: ${{ secrets.MAVEN_SETTINGS_BASE64 }}
 
-    - name: Deploy to CloudHub 2.0
-      run: |
-        mvn deploy -DskipMunitTests -DmuleDeploy -Ptest
+#     - name: Download Artifact
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: mule-application
+
+#     - name: Deploy to CloudHub 2.0
+#       run: |
+#         mvn deploy -DskipMunitTests -DmuleDeploy -Ptest
 
