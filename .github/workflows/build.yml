@@ -5,6 +5,8 @@ on:
     secrets:
       MAVEN_SETTINGS_BASE64:
         required: true
+      SECRET_VALUE:
+        required: true
     inputs:
       environment:
         required: true
@@ -35,12 +37,12 @@ jobs:
 
     - name: Show received secrets
       env:
-        SECRET_VALUE: ${{ secrets.SECRET_VALUE }}
+        SECRET_VALUE1: ${{ secrets.SECRET_VALUE }}
       run: |
-        if [ -z "$SECRET_VALUE" ]; then
+        if [ -z "$SECRET_VALUE1" ]; then
         echo "SECRET_VALUE is empty"
         else
-        echo "SECRET_VALUE length: ${#SECRET_VALUE}"
+        echo "SECRET_VALUE length: ${#SECRET_VALUE1}"
         fi
         
 
